@@ -1,5 +1,3 @@
-# MOFcolorizer
-
 ![image](static/logo.png)
 Dash app that uses ML to predict the color of MOFs.
 

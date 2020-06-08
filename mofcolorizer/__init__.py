@@ -6,6 +6,7 @@ import os
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from flask import session
 
 from . import app_main
 from .app import app, server
@@ -20,6 +21,8 @@ app.layout = html.Div([dcc.Location(id='url', refresh=False), html.Div(id='page-
 )
 def display_page(pathname):
     """Display the layout as function of the url"""
+    session.clear()
+    session['filename'] = 'dummy'
 
     app.logger.info('Pathname is {}'.format(pathname))
     if pathname == '/':
