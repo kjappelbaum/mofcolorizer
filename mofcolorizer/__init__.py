@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 
 import logging
 
+import crystal_toolkit.components as ctc
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -12,7 +13,7 @@ from flask import session
 from flask_session import Session
 from pymatgen import Lattice, Structure
 
-import crystal_toolkit.components as ctc
+from colorml import __version__ as colormlversion
 
 from . import dash_reusable_components as drc
 from ._version import get_versions
@@ -29,10 +30,18 @@ app = dash.Dash(  # pylint:disable=invalid-name
     __name__,
     external_stylesheets=EXTERNAL_STYLESHEETS,
     meta_tags=[
-        {'charset': 'utf-8'},
-        {'http-equiv': 'X-UA-Compatible', 'content': 'IE=edge'},
+        {
+            'charset': 'utf-8'
+        },
+        {
+            'http-equiv': 'X-UA-Compatible',
+            'content': 'IE=edge'
+        },
         # needed for iframe resizer
-        {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
+        {
+            'name': 'viewport',
+            'content': 'width=device-width, initial-scale=1'
+        },
     ],
 )
 
@@ -41,8 +50,11 @@ app.title = 'mofcolorizer'
 
 STRUCTURE = Structure(Lattice.cubic(4.2), ['Na', 'K'], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-structure_component = ctc.StructureMoleculeComponent( # pylint:disable=invalid-name
-    STRUCTURE, id='structure', bonding_strategy='JmolNN', color_scheme='Jmol',
+structure_component = ctc.StructureMoleculeComponent(  # pylint:disable=invalid-name
+    STRUCTURE,
+    id='structure',
+    bonding_strategy='JmolNN',
+    color_scheme='Jmol',
 )
 
 layout = html.Div(  # pylint:disable=invalid-name
@@ -64,25 +76,26 @@ layout = html.Div(  # pylint:disable=invalid-name
                     ],
                     className='jumbotron',
                 ),
-                drc.Card(
-                    [
-                        dcc.Upload(
-                            id='upload_cif',
-                            children=['Drag and Drop or ', html.A('Select a cif'),],
-                            style={
-                                'width': '100%',
-                                'height': '50px',
-                                'lineHeight': '50px',
-                                'borderWidth': '1px',
-                                'borderStyle': 'dashed',
-                                'borderRadius': '5px',
-                                'textAlign': 'center',
-                            },
-                            accept='.cif',
-                        ),
-                        html.Div(id='upload_info'),
-                    ],
-                ),
+                drc.Card([
+                    dcc.Upload(
+                        id='upload_cif',
+                        children=[
+                            'Drag and Drop or ',
+                            html.A('Select a cif'),
+                        ],
+                        style={
+                            'width': '100%',
+                            'height': '50px',
+                            'lineHeight': '50px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center',
+                        },
+                        accept='.cif',
+                    ),
+                    html.Div(id='upload_info'),
+                ],),
                 html.Div(
                     html.Div(
                         [
@@ -93,7 +106,7 @@ layout = html.Div(  # pylint:disable=invalid-name
                                 ],
                                 className='col',
                             ),
-                            html.Div([html.Div(id='resultdiv')], className='col'),
+                            html.Div(dcc.Loading([html.Div(id='resultdiv')]), className='col'),
                         ],
                         className='row',
                     ),
@@ -104,66 +117,42 @@ layout = html.Div(  # pylint:disable=invalid-name
         ),
         html.Div(
             [
-                html.Div(
-                    [
-                        html.H2('About', className='display-4'),
-                        html.P('For more details, please have a look at our paper.'),
-                        html.P(
-                            [
-                                'If you want to learn more, feel free to contact ',
-                                html.A('Kevin', href='mailto:kevin.jablonka@epfl.ch'),
-                                '.',
-                            ]
+                html.Div([
+                    html.H2('About', className='display-4'),
+                    html.P('For more details, please have a look at our paper.'),
+                    html.P([
+                        'If you want to learn more, feel free to contact ',
+                        html.A('Kevin', href='mailto:kevin.jablonka@epfl.ch'),
+                        '.',
+                    ]),
+                    html.H2('Technical Details', className='display-4'),
+                    html.P([
+                        'This app was implemented using ',
+                        html.A(
+                            'crystal toolkit',
+                            href='https://docs.crystaltoolkit.org/index.html',
                         ),
-                        html.H2('Technical Details', className='display-4'),
-                        html.P(
-                            [
-                                'This app was implemented using ',
-                                html.A(
-                                    'crystal toolkit',
-                                    href='https://docs.crystaltoolkit.org/index.html',
-                                ),
-                                ' and ',
-                                html.A('Dash', href='https://plot.ly/dash/'),
-                                '.',
-                                ' This app can appear slow due to I/O operations that were not optimized for use on the web.',
-                            ]
-                        ),
-                        html.H2('Privacy', className='display-4'),
-                        html.P('We will store no personal data that can identify you.'),
-                    ],
-                ),
+                        ' and ',
+                        html.A('Dash', href='https://plot.ly/dash/'),
+                        '.',
+                        ' This app can appear slow due to I/O operations that were not optimized for use on the web.',
+                    ]),
+                    html.H2('Privacy', className='display-4'),
+                    html.P('We will store no personal data that can identify you.'),
+                ],),
                 html.Hr(),
                 html.Footer(
-                    '© Laboratory of Molecular Simulation (LSMO), École polytechnique fédérale de Lausanne (EPFL). Version {}'.format(
-                        __version__
-                    )
-                ),
+                    '© Laboratory of Molecular Simulation (LSMO), École polytechnique fédérale de Lausanne (EPFL). Web app version {}, colorml version {}'
+                    .format(__version__, colormlversion)),
             ],
             className='container',
         ),
     ],
     className='container',
     # tag for iframe resizer
-    **{'data-iframe-height': ''}
-)
+    **{'data-iframe-height': ''})
 
 ctc.register_crystal_toolkit(app, layout=layout)
-
-
-@app.callback(
-    Output(structure_component.id(), 'data'),
-    [Input('memorystore', 'modified_timestamp')],
-    [State('memorystore', 'data')],
-)
-def update_structure(ts, store):
-    app.logger.info('triggering structure viz update')
-    try:
-        if store['structure'] is not None:
-            return Structure.from_dict(store['structure'])
-        raise PreventUpdate
-    except Exception:
-        raise PreventUpdate
 
 
 @app.callback(
@@ -171,16 +160,16 @@ def update_structure(ts, store):
     [Input('memorystore', 'modified_timestamp')],
     [State('memorystore', 'data')],
 )
-def run_prediction(ts, store):
+def run_prediction(_, store):
     app.logger.info('triggering prediction update')
     try:
         if store['structure'] is not None:
             with drc.temp() as tempfilehandle:
-                s = Structure.from_dict(store['structre'])
+                s = Structure.from_dict(store['structre'])  # pylint: disable=invalid-name
                 s.to(tempfilehandle.name, fmt='cif')
             raise PreventUpdate
         raise PreventUpdate
-    except Exception:
+    except Exception:  # pylint:disable=broad-except
         raise PreventUpdate
 
 
@@ -208,7 +197,7 @@ def update_structure(content, new_filename, store):
                 # We need to give the user somehow feedback ...
                 store['structure'] = str_dict
                 return store, 'Structure loaded succesfully'
-            except Exception:
+            except Exception:  # pylint:disable=broad-except
                 return store, 'There has been a problem with loading the structure.'
 
     except Exception:

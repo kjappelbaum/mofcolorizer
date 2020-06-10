@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import joblib
-import pandas as pd
 
 from colorml.featurize import FeaturizationException, get_color_descriptors
 
-# SCALER = joblib.load()
-# MODEL_MEDIAN = joblib.load()
-# MODEL_01 = joblib.load()
-# MODEL_09 = joblib.load()
+SCALER = joblib.load('scaler_run_2020_06_08_12_59_1591613951.joblib')
+MODEL_MEDIAN = joblib.load('regressor_medianrun_2020_06_08_12_59_1591613951.joblib')
+MODEL_01 = joblib.load('regressor_0_1run_2020_06_08_12_59_1591613951.joblib')
+MODEL_09 = joblib.load('regressor_0_9run_2020_06_08_12_59_1591613951.joblib')
 
 CHEMICAL_FEATURES = [
     'mc_CRY-chi-0-all',
@@ -293,9 +291,13 @@ def _featurize(cif):
 def predict(cif):
     features = _featurize(cif)
     features = SCALER.transform(features)
-    prediction_01 = MODEL_01.predict()
-    prediction_09 = MODEL_09.predict()
-    prediction_median = MODEL_MEDIAN.predict()
+    prediction_01 = MODEL_01.predict(features) * 255
+    prediction_09 = MODEL_09.predict(features) * 255
+    prediction_median = MODEL_MEDIAN.predict(features) * 255
+
+    prediction_median_rounded = [int(c) for c in c in prediction_median]
+    prediction_01_rounded = [int(c) for c in c in prediction_01]
+    prediction_09_rounded = [int(c) for c in c in prediction_09]
 
     if features is None:
         # Featurization exception occured, we do not return a results table but rather an error message
@@ -312,9 +314,9 @@ def predict(cif):
                     html.Td(''),
                 ]),
                 html.Tr([
-                    html.Td(''),
-                    html.Td(''),
-                    html.Td(''),
+                    html.Td(prediction_median_rounded[0], prediction_median_rounded[1], prediction_median_rounded[2]),
+                    html.Td(prediction_01_rounded[0], prediction_01_rounded[1], prediction_01_rounded[2]),
+                    html.Td(prediction_09_rounded[0], prediction_09_rounded[1], prediction_09_rounded[2]),
                 ]),
             ],
             bordered=True,
