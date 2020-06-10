@@ -2,8 +2,11 @@
 from __future__ import absolute_import
 
 import base64
+import contextlib
+import os
+import tempfile
+
 import dash_html_components as html
-from io import BytesIO as _BytesIO
 
 
 def _merge(a, b):  # pylint:disable=invalid-name
@@ -14,10 +17,27 @@ def _omit(omitted_keys, d):  # pylint:disable=invalid-name
     return {k: v for k, v in d.items() if k not in omitted_keys}
 
 
-def b64_to_cif(string):
+def b64_to_str(content):
     """Bytes to pillow image"""
-    decoded = base64.b64decode(string)
-    buffer = _BytesIO(decoded)
+    data = content.encode('utf8').split(b';base64,')[1]
+    decoded = base64.decodebytes(data)
+    return decoded.decode('utf-8')
+
+
+@contextlib.contextmanager
+def temp(cleanup=True):
+    tmp = tempfile.NamedTemporaryFile(delete=False)
+    try:
+        yield tmp
+    finally:
+        tmp.close()  # closes the file, so we can right remove it
+        cleanup and os.remove(tmp.name)
+
+
+def save_file(filehandle, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode('utf8').split(b';base64,')[1]
+    filehandle.write(base64.decodebytes(data))
 
 
 def Card(children, **kwargs):  # pylint: disable=invalid-name
@@ -25,17 +45,19 @@ def Card(children, **kwargs):  # pylint: disable=invalid-name
         children,
         style=_merge(
             {
-                "padding": 20,
-                "margin": 5,
-                "borderRadius": 5,
-                "border": "thin lightgrey solid",
+                'padding': 10,
+                'marginBottom': '1em',
+                'marginTop': 0,
+                'borderRadius': 5,
+                'width': '100%',
+                'border': 'thin lightgrey solid',
                 # Remove possibility to select the text for better UX
-                "user-select": "none",
-                "-moz-user-select": "none",
-                "-webkit-user-select": "none",
-                "-ms-user-select": "none",
+                'userSelect': 'none',
+                '-moz-user-select': 'none',
+                '-webkit-user-select': 'none',
+                '-msUserSelect': 'none',
             },
-            kwargs.get("style", {}),
+            kwargs.get('style', {}),
         ),
-        **_omit(["style"], kwargs),
+        **_omit(['style'], kwargs),
     )

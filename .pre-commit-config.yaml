@@ -59,14 +59,14 @@ repos:
         types: [python]
         entry: isort
       - id: yapf
-        exclude: versioneer.py|colorcalibrator/_version.py
+        exclude: versioneer.py|mofcolorizer/_version.py
         name: yapf
         entry: yapf
         language: system
         types: [python]
         args: ["-i"]
       - id: prospector
-        exclude: versioneer.py|colorcalibrator/_version.py
+        exclude: versioneer.py|mofcolorizer/_version.py
         language: system
         types: [file, python]
         name: prospector

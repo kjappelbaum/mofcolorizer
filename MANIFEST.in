@@ -1,0 +1,2 @@
+include versioneer.py
+include mofcolorizer/_version.py
