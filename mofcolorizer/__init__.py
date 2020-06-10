@@ -17,6 +17,7 @@ from colorml import __version__ as colormlversion
 
 from . import dash_reusable_components as drc
 from ._version import get_versions
+from .core import predict
 
 __version__ = get_versions()['version']
 del get_versions
@@ -62,20 +63,22 @@ layout = html.Div(  # pylint:disable=invalid-name
         dcc.Store(id='memorystore'),
         html.Div(
             [
-                html.Div(
-                    [
-                        html.H1('MOFcolorizer', className='display-3', id='h1'),
-                        html.P(
-                            'This model attempts to predict the color of MOFs.',
-                            className='lead',
-                        ),
-                        html.P(
-                            'It is trained on subjective, categorical, assignments of colors to MOFs in the Cambridge Structural Database (CSD). We transformed the categorical labels into continuos ones using a survey.',
-                            className='lead',
-                        ),
-                    ],
-                    className='jumbotron',
-                ),
+                html.Div([
+                    html.H1(['MOF', html.I('colorizer')], className='display-3', id='h1'),
+                    html.P(
+                        'This model attempts to predict the color of MOFs.',
+                        className='lead',
+                    ),
+                    html.P(
+                        'It is trained on subjective, categorical, assignments of colors to MOFs in the Cambridge Structural Database (CSD). We transformed the categorical labels into continuos ones using a survey.',
+                        className='lead',
+                    ),
+                ],
+                         className='jumbotron',
+                         style={
+                             'margin-bottom': '1rem',
+                             'padding-bottom': '2rem'
+                         }),
                 drc.Card([
                     dcc.Upload(
                         id='upload_cif',
@@ -94,19 +97,18 @@ layout = html.Div(  # pylint:disable=invalid-name
                         },
                         accept='.cif',
                     ),
-                    html.Div(id='upload_info'),
+                    html.Div('', id='upload_info'),
                 ],),
                 html.Div(
                     html.Div(
                         [
-                            html.Div(
-                                [
-                                    structure_component.layout(size='400px'),
-                                    structure_component.legend_layout(),
-                                ],
-                                className='col',
-                            ),
-                            html.Div(dcc.Loading([html.Div(id='resultdiv')]), className='col'),
+                            html.Div([
+                                structure_component.layout(),
+                                structure_component.legend_layout(),
+                            ],
+                                     className='col-md-4',
+                                     style={'width': '100%'}),
+                            html.Div(dcc.Loading([html.Div(id='resultdiv')]), className='col-md-8'),
                         ],
                         className='row',
                     ),
@@ -165,11 +167,14 @@ def run_prediction(_, store):
     try:
         if store['structure'] is not None:
             with drc.temp() as tempfilehandle:
-                s = Structure.from_dict(store['structre'])  # pylint: disable=invalid-name
-                s.to(tempfilehandle.name, fmt='cif')
-            raise PreventUpdate
+                s = Structure.from_dict(store['structure'])  # pylint: disable=invalid-name
+                s.to(filename=tempfilehandle.name, fmt='cif')
+                prediction = predict(tempfilehandle.name)
+            return prediction
+
         raise PreventUpdate
-    except Exception:  # pylint:disable=broad-except
+    except Exception as e:  # pylint:disable=broad-except,invalid-name
+        print(e)
         raise PreventUpdate
 
 
@@ -196,14 +201,29 @@ def update_structure(content, new_filename, store):
                 # session["filename"] = new_filename
                 # We need to give the user somehow feedback ...
                 store['structure'] = str_dict
-                return store, 'Structure loaded succesfully'
+                return store, ''
             except Exception:  # pylint:disable=broad-except
                 return store, 'There has been a problem with loading the structure.'
 
-    except Exception:
+    except Exception:  # pylint:disable=broad-except
         store = {'filename': None, 'structure': None}
 
     return store, ''
+
+
+@app.callback(
+    Output(structure_component.id(), 'data'),
+    [Input('memorystore', 'modified_timestamp')],
+    [State('memorystore', 'data')],
+)
+def update_structure_viz(_, store):
+    app.logger.info('triggering structure viz update')
+    try:
+        if store['structure'] is not None:
+            return Structure.from_dict(store['structure'])
+        raise PreventUpdate
+    except Exception:  # pylint:disable=broad-except
+        raise PreventUpdate
 
 
 if __name__ == '__main__':

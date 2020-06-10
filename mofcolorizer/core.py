@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
+
+import os
 
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import joblib
+from webcolors import rgb_to_hex
 
 from colorml.featurize import FeaturizationException, get_color_descriptors
 
-SCALER = joblib.load('scaler_run_2020_06_08_12_59_1591613951.joblib')
-MODEL_MEDIAN = joblib.load('regressor_medianrun_2020_06_08_12_59_1591613951.joblib')
-MODEL_01 = joblib.load('regressor_0_1run_2020_06_08_12_59_1591613951.joblib')
-MODEL_09 = joblib.load('regressor_0_9run_2020_06_08_12_59_1591613951.joblib')
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+
+SCALER = joblib.load(os.path.join(THIS_DIR, 'scaler_run_2020_06_08_12_59_1591613951.joblib'))
+MODEL_MEDIAN = joblib.load(os.path.join(THIS_DIR, 'regressor_medianrun_2020_06_08_12_59_1591613951.joblib'))
+MODEL_01 = joblib.load(os.path.join(THIS_DIR, 'regressor_0_1run_2020_06_08_12_59_1591613951.joblib'))
+MODEL_09 = joblib.load(os.path.join(THIS_DIR, 'regressor_0_9run_2020_06_08_12_59_1591613951.joblib'))
 
 CHEMICAL_FEATURES = [
     'mc_CRY-chi-0-all',
@@ -289,15 +294,23 @@ def _featurize(cif):
 
 
 def predict(cif):
+    print('starting prediction function')
     features = _featurize(cif)
+    print('featuriztion completed')
     features = SCALER.transform(features)
     prediction_01 = MODEL_01.predict(features) * 255
     prediction_09 = MODEL_09.predict(features) * 255
     prediction_median = MODEL_MEDIAN.predict(features) * 255
+    print('prediction done')
 
-    prediction_median_rounded = [int(c) for c in c in prediction_median]
-    prediction_01_rounded = [int(c) for c in c in prediction_01]
-    prediction_09_rounded = [int(c) for c in c in prediction_09]
+    prediction_median_rounded = [int(c) for c in prediction_median[0]]
+    prediction_01_rounded = [int(c) for c in prediction_01[0]]
+    prediction_09_rounded = [int(c) for c in prediction_09[0]]
+    hex_median = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_median][0]
+    hex_01 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_01][0]
+    hex_09 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_09][0]
+
+    print(hex_09)
 
     if features is None:
         # Featurization exception occured, we do not return a results table but rather an error message
@@ -305,19 +318,41 @@ def predict(cif):
             'An error occured during the featurization. Ensure that your strucutre is valid, non-disordered and contains no clashing atoms.'
         )
     else:
-        return dbc.Table(
-            [
-                html.Thead([html.Td('Median'), html.Td('10 %'), html.Td('90 %')]),
+        return html.Div([
+            dbc.Table([
+                html.Thead([html.Td(), html.Td('Median'),
+                            html.Td('10 %'), html.Td('90 %')]),
                 html.Tr([
-                    html.Td(''),
-                    html.Td(''),
-                    html.Td(''),
+                    html.Td('color'),
+                    html.Td(style={'background-color': hex_median}),
+                    html.Td(style={'background-color': hex_01}),
+                    html.Td(style={'background-color': hex_09}),
                 ]),
                 html.Tr([
-                    html.Td(prediction_median_rounded[0], prediction_median_rounded[1], prediction_median_rounded[2]),
-                    html.Td(prediction_01_rounded[0], prediction_01_rounded[1], prediction_01_rounded[2]),
-                    html.Td(prediction_09_rounded[0], prediction_09_rounded[1], prediction_09_rounded[2]),
+                    html.Td('RGB'),
+                    html.Td('{} {} {}'.format(prediction_median_rounded[0], prediction_median_rounded[1],
+                                              prediction_median_rounded[2])),
+                    html.Td('{} {} {}'.format(prediction_01_rounded[0], prediction_01_rounded[1],
+                                              prediction_01_rounded[2])),
+                    html.Td('{} {} {}'.format(prediction_09_rounded[0], prediction_09_rounded[1],
+                                              prediction_09_rounded[2])),
+                ]),
+                html.Tr([
+                    html.Td('Hex'),
+                    html.Td(hex_median),
+                    html.Td(hex_01),
+                    html.Td(hex_09),
                 ]),
             ],
-            bordered=True,
-        )
+                      bordered=True,
+                      style={
+                          'width': '90%',
+                          'margin-left': '5%'
+                      }),
+            html.
+            P('We show three different colors as the predictions a model makes are samples from some distribution. The most important point is the median, which is the center of the distribution and this should be closest to the real color. The 10% and 20% quantiles represent the lower and upper errorbars. If the model is quite sure about the prediction, the colors will be close to the median.',
+              style={
+                  'width': '90%',
+                  'margin-left': '5%'
+              })
+        ])
