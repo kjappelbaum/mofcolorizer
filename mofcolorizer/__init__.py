@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# pylint:disable=line-too-long
+"""Core of the flask app"""
 from __future__ import absolute_import, print_function
 
 import logging
@@ -12,8 +14,6 @@ from dash.exceptions import PreventUpdate
 from flask import session
 from flask_session import Session
 from pymatgen import Lattice, Structure
-
-from colorml import __version__ as colormlversion
 
 from . import dash_reusable_components as drc
 from ._version import get_versions
@@ -70,7 +70,10 @@ layout = html.Div(  # pylint:disable=invalid-name
                         className='lead',
                     ),
                     html.P(
-                        'It is trained on subjective, categorical, assignments of colors to MOFs in the Cambridge Structural Database (CSD). We transformed the categorical labels into continuos ones using a survey.',
+                        [
+                            'It is trained on subjective, categorical, assignments of colors to MOFs in the Cambridge Structural Database (CSD).',
+                            ' We transformed the categorical labels into continuos ones using a survey.'
+                        ],
                         className='lead',
                     ),
                 ],
@@ -144,8 +147,8 @@ layout = html.Div(  # pylint:disable=invalid-name
                 ],),
                 html.Hr(),
                 html.Footer(
-                    '© Laboratory of Molecular Simulation (LSMO), École polytechnique fédérale de Lausanne (EPFL). Web app version {}, colorml version {}'
-                    .format(__version__, colormlversion)),
+                    '© Laboratory of Molecular Simulation (LSMO), École polytechnique fédérale de Lausanne (EPFL). Web app version {}.'
+                    .format(__version__)),
             ],
             className='container',
         ),
@@ -163,6 +166,7 @@ ctc.register_crystal_toolkit(app, layout=layout)
     [State('memorystore', 'data')],
 )
 def run_prediction(_, store):
+    """Returns the prediction table"""
     app.logger.info('triggering prediction update')
     try:
         if store['structure'] is not None:
@@ -184,6 +188,7 @@ def run_prediction(_, store):
     [State('upload_cif', 'filename'), State('memorystore', 'data')],
 )
 def update_structure(content, new_filename, store):
+    """Loads the structure into the memory div"""
     app.logger.info('triggered structure update callback')
     try:
         filename = store['filename']
@@ -199,7 +204,7 @@ def update_structure(content, new_filename, store):
                 store['filename'] = new_filename
                 # session["structure"] = str_dict
                 # session["filename"] = new_filename
-                # We need to give the user somehow feedback ...
+                # We need to give the user somehow feedback ...git
                 store['structure'] = str_dict
                 return store, ''
             except Exception:  # pylint:disable=broad-except
@@ -217,6 +222,7 @@ def update_structure(content, new_filename, store):
     [State('memorystore', 'data')],
 )
 def update_structure_viz(_, store):
+    """Updates the crystaltoolkit visualizer"""
     app.logger.info('triggering structure viz update')
     try:
         if store['structure'] is not None:
@@ -227,4 +233,4 @@ def update_structure_viz(_, store):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8050)
+    app.run_server(debug=True)

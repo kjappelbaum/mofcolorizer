@@ -5,10 +5,11 @@ dash-html-components==1.0.2
 dash-mp-components==0.0.8
 dash-renderer==1.2.4
 dash-table==4.6.1
--e git+git@github.com:kjappelbaum/colorml.git#egg=colorml
--e git+https://github.com/kjappelbaum/molSimplify.git@racs4mof_refact#egg=molsimplify
--e git+https://github.com/kjappelbaum/crystaltoolkit.git@for_deployment#egg=crystal_toolkit
+git+https://github.com/kjappelbaum/molSimplify.git@racs4mof_refact#egg=molsimplify
+git+https://github.com/kjappelbaum/crystaltoolkit.git@for_deployment#egg=crystal_toolkit
 dash-bootstrap-components==0.10.2
 robocrys==0.1.3
 pymatgen==2020.3.13
 flask_session==0.3.2
+colormath==3.0.0
+json-logging-py

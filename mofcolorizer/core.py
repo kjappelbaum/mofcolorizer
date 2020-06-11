@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# pylint:disable=line-too-long
+"""Calls the featurization function, loads the models and uses them to predict"""
 from __future__ import absolute_import, print_function
 
 import os
@@ -8,7 +10,7 @@ import dash_html_components as html
 import joblib
 from webcolors import rgb_to_hex
 
-from colorml.featurize import FeaturizationException, get_color_descriptors
+from .featurize import FeaturizationException, get_color_descriptors
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -286,6 +288,7 @@ CHEMICAL_FEATURES = [
 
 
 def _featurize(cif):
+    """Runs featurization and returns none in case of FeaturizationException"""
     try:
         descriptors = get_color_descriptors(cif)
         return descriptors[CHEMICAL_FEATURES]
@@ -294,14 +297,14 @@ def _featurize(cif):
 
 
 def predict(cif):
-    print('starting prediction function')
+    """Outputs a table with predictions and a div with explanaition if the prediction worked"""
+
     features = _featurize(cif)
-    print('featuriztion completed')
+
     features = SCALER.transform(features)
     prediction_01 = MODEL_01.predict(features) * 255
     prediction_09 = MODEL_09.predict(features) * 255
     prediction_median = MODEL_MEDIAN.predict(features) * 255
-    print('prediction done')
 
     prediction_median_rounded = [int(c) for c in prediction_median[0]]
     prediction_01_rounded = [int(c) for c in prediction_01[0]]
@@ -309,14 +312,12 @@ def predict(cif):
     hex_median = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_median][0]
     hex_01 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_01][0]
     hex_09 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_09][0]
-
-    print(hex_09)
-
-    if features is None:
+    if features is None:  # pylint:disable=no-else-return
         # Featurization exception occured, we do not return a results table but rather an error message
-        return html.Div(
-            'An error occured during the featurization. Ensure that your strucutre is valid, non-disordered and contains no clashing atoms.'
-        )
+        return html.Div([
+            'An error occured during the featurization.',
+            ' Ensure that your strucutre is valid, non-disordered and contains no clashing atoms.'
+        ])
     else:
         return html.Div([
             dbc.Table([
@@ -349,10 +350,14 @@ def predict(cif):
                           'width': '90%',
                           'margin-left': '5%'
                       }),
-            html.
-            P('We show three different colors as the predictions a model makes are samples from some distribution. The most important point is the median, which is the center of the distribution and this should be closest to the real color. The 10% and 20% quantiles represent the lower and upper errorbars. If the model is quite sure about the prediction, the colors will be close to the median.',
-              style={
-                  'width': '90%',
-                  'margin-left': '5%'
-              })
+            html.P([
+                'We show three different colors as the predictions a model makes are samples from some distribution.'
+                ' The most important point is the median, which is the center of the distribution and this should be closest to the real color.',
+                ' The 10% and 20% quantiles represent the lower and upper errorbars.',
+                ' If the model is quite sure about the prediction, the colors will be close to the median.'
+            ],
+                   style={
+                       'width': '90%',
+                       'margin-left': '5%'
+                   })
         ])
