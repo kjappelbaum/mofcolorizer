@@ -12,13 +12,14 @@ WORKDIR /home/lsmoler
 
 COPY requirements.txt .
 
+RUN pip install --no-cache-dir -r requirements.txt
 RUN git clone https://github.com/snurr-group/mofid.git && cd mofid && make init && python set_paths.py && pip install  .
 RUN conda install --yes --freeze-installed -c openbabel openbabel==2.4.1  && conda install --yes --freeze-installed lightgbm && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
-RUN pip install --no-cache-dir -r requirements.txt
+
 
 COPY ./mofcolorizer  ./mofcolorizer
 COPY run_app.py .
