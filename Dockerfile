@@ -19,10 +19,11 @@ RUN conda install --yes --freeze-installed -c openbabel openbabel==2.4.1  && con
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
     && find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
+
+COPY ./mofcolorizer  ./mofcolorizer
 COPY run_app.py .
 COPY logging.conf .
 COPY gunicorn_conf.py .
-COPY ./mofcolorizer  ./mofcolorizer
 
 RUN chown -R lsmoler:lsmoler ./
 
