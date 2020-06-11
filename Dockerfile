@@ -5,10 +5,16 @@ FROM  continuumio/miniconda3:4.8.2
 COPY install_packages.sh .
 RUN ./install_packages.sh
 
-COPY requirements.txt .
-RUN pip install  --no-cache-dir -r requirements.txt
+# Do not run this buggy thing as root
+RUN useradd lsmoler
 
-RUN git clone https://github.com/snurr-group/mofid.git && cd mofid && make init && python set_paths.py && pip install .
+
+WORKDIR /home/lsmoler
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN git clone https://github.com/snurr-group/mofid.git && cd mofid && make init && python set_paths.py && pip install  .
 RUN conda install --yes --freeze-installed -c openbabel openbabel==2.4.1  && conda install --yes --freeze-installed lightgbm && conda clean -afy \
     && find /opt/conda/ -follow -type f -name '*.a' -delete \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
@@ -16,9 +22,12 @@ RUN conda install --yes --freeze-installed -c openbabel openbabel==2.4.1  && con
 
 COPY ./mofcolorizer  ./mofcolorizer
 COPY run_app.py .
-COPY Procfile .
 COPY logging.conf .
 COPY gunicorn_conf.py .
 
-EXPOSE 8091
-CMD ["gunicorn", "-b", "0.0.0.0:8091", "-c", "gunicorn_conf.py", "--log-config", "logging.conf", "run_app:server"]
+RUN chown -R lsmoler:lsmoler ./
+
+USER lsmoler
+
+# https://help.heroku.com/PPBPA231/how-do-i-use-the-port-environment-variable-in-container-based-apps
+CMD gunicorn -b 0.0.0.0:$PORT -c gunicorn_conf.py --log-config logging.conf run_app:server
