@@ -20,7 +20,7 @@ apt-get update
 apt-get -y upgrade
 
 # Install a new package, without unnecessary recommended packages:
-apt-get -y install --no-install-recommends git build-essential cmake default-jre-headless
+apt-get -y install --no-install-recommends git build-essential cmake default-jre-headless curl
 
 # Delete cached files we don't need anymore:
 apt-get clean
