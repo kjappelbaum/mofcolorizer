@@ -16,11 +16,9 @@ from flask_session import Session
 from pymatgen import Lattice, Structure
 
 from . import dash_reusable_components as drc
-from ._version import get_versions
 from .core import predict
 
-__version__ = get_versions()['version']
-del get_versions
+__version__ = 'v0.1-alpha (12/06/2020)'
 
 EXTERNAL_STYLESHEETS = [
     './assets/style.css',
