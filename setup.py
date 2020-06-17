@@ -11,7 +11,7 @@ setup(
     license='MIT',
     install_requires=[],
     extras_require={
-        'testing': ['pytest', 'pytest-cov<2.6'],
+        'testing': ['pytest', 'pytest-cov<2.11'],
         'docs': ['sphinx-rtd-theme', 'sphinxcontrib-bibtex'],
         'pre-commit': ['pre-commit', 'yapf', 'prospector', 'pylint', 'versioneer'],
     },
