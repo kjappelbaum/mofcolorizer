@@ -3,7 +3,7 @@ dash-core-components==1.8.1
 dash-daq==0.4.0
 dash-html-components==1.0.2
 dash-mp-components==0.0.8
-dash-renderer==1.2.4
+dash-renderer==1.4.1
 dash-table==4.6.1
 git+https://github.com/kjappelbaum/molSimplify.git@racs4mof_refact#egg=molsimplify
 git+https://github.com/kjappelbaum/crystaltoolkit.git@for_deployment#egg=crystal_toolkit
