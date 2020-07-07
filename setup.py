@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='mofcolorizer',
-    version='v0.1',
+    version='v0.1-alpha',
     packages=['colorml'],
     url='',
     license='MIT',

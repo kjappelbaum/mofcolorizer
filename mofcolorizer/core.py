@@ -5,6 +5,7 @@ from __future__ import absolute_import, print_function
 
 import os
 
+import pandas as pd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import joblib
@@ -292,7 +293,8 @@ def _featurize(cif):
     try:
         descriptors = get_color_descriptors(cif)
         return descriptors[CHEMICAL_FEATURES]
-    except FeaturizationException:
+    except FeaturizationException as e:
+        print(e)
         return None
 
 
@@ -301,24 +303,28 @@ def predict(cif):
 
     features = _featurize(cif)
 
-    features = SCALER.transform(features)
-    prediction_01 = MODEL_01.predict(features) * 255
-    prediction_09 = MODEL_09.predict(features) * 255
-    prediction_median = MODEL_MEDIAN.predict(features) * 255
-
-    prediction_median_rounded = [int(c) for c in prediction_median[0]]
-    prediction_01_rounded = [int(c) for c in prediction_01[0]]
-    prediction_09_rounded = [int(c) for c in prediction_09[0]]
-    hex_median = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_median][0]
-    hex_01 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_01][0]
-    hex_09 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_09][0]
-    if features is None:  # pylint:disable=no-else-return
+    if not isinstance(features, pd.DataFrame):  # pylint:disable=no-else-return
         # Featurization exception occured, we do not return a results table but rather an error message
-        return html.Div([
-            'An error occured during the featurization.',
-            ' Ensure that your strucutre is valid, non-disordered and contains no clashing atoms.'
-        ])
+        return dbc.Alert(
+            'An error occured during the featurization. Ensure that your structure is valid, non-disordered and contains no clashing atoms.',
+            dismissable=True,
+            color='warning',
+            style={
+                'margin-left': '3rem',
+                'margin-right': '1rem'
+            })
     else:
+        features = SCALER.transform(features)
+        prediction_01 = MODEL_01.predict(features) * 255
+        prediction_09 = MODEL_09.predict(features) * 255
+        prediction_median = MODEL_MEDIAN.predict(features) * 255
+
+        prediction_median_rounded = [int(c) for c in prediction_median[0]]
+        prediction_01_rounded = [int(c) for c in prediction_01[0]]
+        prediction_09_rounded = [int(c) for c in prediction_09[0]]
+        hex_median = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_median][0]
+        hex_01 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_01][0]
+        hex_09 = [rgb_to_hex((int(c[0]), int(c[1]), int(c[2]))) for c in prediction_09][0]
         return html.Div([
             dbc.Table([
                 html.Thead([html.Td(), html.Td('Median'),

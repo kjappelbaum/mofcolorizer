@@ -7,6 +7,7 @@ import logging
 
 import crystal_toolkit.components as ctc
 import dash
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
@@ -20,10 +21,7 @@ from .core import predict
 
 __version__ = 'v0.1-alpha (12/06/2020)'
 
-EXTERNAL_STYLESHEETS = [
-    './assets/style.css',
-    './assets/vis.min.css',
-]
+EXTERNAL_STYLESHEETS = ['./assets/style.css', './assets/vis.min.css', dbc.themes.BOOTSTRAP]
 
 app = dash.Dash(  # pylint:disable=invalid-name
     __name__,

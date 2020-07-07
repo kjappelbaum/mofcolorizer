@@ -125,7 +125,6 @@ def get_smiles_features(cif):
     # make sure that the output is automatically deleted.
     with make_temp_directory() as temp_dir:
         mofid = cif2mofid(cif, temp_dir)
-
     name = mofid['cifname']
 
     linker_descriptors = []
@@ -164,7 +163,8 @@ def get_moldesc(cifs):
         result_list.append(get_smiles_features(cif))
     try:
         df = pd.DataFrame(result_list)  # pylint:disable=invalid-name
-    except Exception:  # pylint:disable=broad-except
+    except Exception as e:  # pylint:disable=broad-except
+        print(e)
         df = result_list  # pylint:disable=invalid-name
 
     return df
@@ -217,7 +217,6 @@ def get_color_descriptors(cif):
             moldesc = get_moldesc([tempname])
             racs = get_racs(tempname)
         df_features = merge_racs_moldesc(moldesc, racs)
-
         return df_features
     except Exception as e:  # pylint:disable=invalid-name
         raise FeaturizationException('Could not featurize the structure due to  {}'.format(e))
