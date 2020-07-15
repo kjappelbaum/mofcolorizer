@@ -5,10 +5,10 @@ from __future__ import absolute_import, print_function
 
 import os
 
-import pandas as pd
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import joblib
+import pandas as pd
 from webcolors import rgb_to_hex
 
 from .featurize import FeaturizationException, get_color_descriptors
