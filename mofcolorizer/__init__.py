@@ -19,7 +19,7 @@ from pymatgen import Lattice, Structure
 from . import dash_reusable_components as drc
 from .core import predict
 
-__version__ = 'v0.1-alpha (12/06/2020)'
+__version__ = 'v0.1-alpha (15/07/2020)'
 
 EXTERNAL_STYLESHEETS = ['./assets/style.css', './assets/vis.min.css', dbc.themes.BOOTSTRAP]
 
