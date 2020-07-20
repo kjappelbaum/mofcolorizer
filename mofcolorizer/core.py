@@ -15,10 +15,10 @@ from .featurize import FeaturizationException, get_color_descriptors
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
-SCALER = joblib.load(os.path.join(THIS_DIR, 'scaler_run_2020_06_08_12_59_1591613951.joblib'))
-MODEL_MEDIAN = joblib.load(os.path.join(THIS_DIR, 'regressor_medianrun_2020_06_08_12_59_1591613951.joblib'))
-MODEL_01 = joblib.load(os.path.join(THIS_DIR, 'regressor_0_1run_2020_06_08_12_59_1591613951.joblib'))
-MODEL_09 = joblib.load(os.path.join(THIS_DIR, 'regressor_0_9run_2020_06_08_12_59_1591613951.joblib'))
+SCALER = joblib.load(os.path.join(THIS_DIR, 'scaler_run_2020_07_19_13_58_1595159925.joblib'))
+MODEL_MEDIAN = joblib.load(os.path.join(THIS_DIR, 'regressor_medianrun_2020_07_19_13_58_1595159925.joblib'))
+MODEL_01 = joblib.load(os.path.join(THIS_DIR, 'regressor_0_1run_2020_07_19_13_58_1595159925.joblib'))
+MODEL_09 = joblib.load(os.path.join(THIS_DIR, 'regressor_0_9run_2020_07_19_13_58_1595159925.joblib'))
 
 CHEMICAL_FEATURES = [
     'mc_CRY-chi-0-all',
