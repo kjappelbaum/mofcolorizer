@@ -1,5 +1,5 @@
 dash==1.13.4
-dash-core-components==1.8.1
+dash-core-components==1.10.1
 dash-daq==0.5.0
 dash-html-components==1.0.3
 dash-mp-components==0.0.24
