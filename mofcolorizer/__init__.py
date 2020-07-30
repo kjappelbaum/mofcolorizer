@@ -5,24 +5,27 @@ from __future__ import absolute_import, print_function
 
 import logging
 
+import crystal_toolkit.components as ctc
 import dash
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask import session
+from flask_session import Session
 from pymatgen import Lattice, Structure
 
-import crystal_toolkit.components as ctc
-import dash_bootstrap_components as dbc
-from flask_session import Session
-
 from . import dash_reusable_components as drc
-from .core import predict
+from .core import MODEL_MEDIAN, predict
 
 __version__ = 'v0.1-alpha (20/07/2020)'
 
-EXTERNAL_STYLESHEETS = ['./assets/style.css', './assets/vis.min.css', dbc.themes.BOOTSTRAP]
+EXTERNAL_STYLESHEETS = [
+    './assets/style.css',
+    './assets/vis.min.css',
+    dbc.themes.BOOTSTRAP,
+]
 
 app = dash.Dash(  # pylint:disable=invalid-name
     __name__,
@@ -60,25 +63,27 @@ layout = html.Div(  # pylint:disable=invalid-name
         dcc.Store(id='memorystore'),
         html.Div(
             [
-                html.Div([
-                    html.H1(['MOF', html.I('colorizer')], className='display-3', id='h1'),
-                    html.P(
-                        'This model attempts to predict the color of MOFs.',
-                        className='lead',
-                    ),
-                    html.P(
-                        [
-                            'It is trained on subjective, categorical, assignments of colors to MOFs in the Cambridge Structural Database (CSD).',
-                            ' We transformed the categorical labels into continuos ones using a survey.'
-                        ],
-                        className='lead',
-                    ),
-                ],
-                         className='jumbotron',
-                         style={
-                             'margin-bottom': '1rem',
-                             'padding-bottom': '2rem'
-                         }),
+                html.Div(
+                    [
+                        html.H1(['MOF', html.I('colorizer')], className='display-3', id='h1'),
+                        html.P(
+                            'This model attempts to predict the color of MOFs.',
+                            className='lead',
+                        ),
+                        html.P(
+                            [
+                                'It is trained on subjective, categorical, assignments of colors to MOFs in the Cambridge Structural Database (CSD).',
+                                ' We transformed the categorical labels into continuos ones using a survey.',
+                            ],
+                            className='lead',
+                        ),
+                    ],
+                    className='jumbotron',
+                    style={
+                        'margin-bottom': '1rem',
+                        'padding-bottom': '2rem'
+                    },
+                ),
                 drc.Card([
                     dcc.Upload(
                         id='upload_cif',
@@ -102,13 +107,18 @@ layout = html.Div(  # pylint:disable=invalid-name
                 html.Div(
                     html.Div(
                         [
-                            html.Div([
-                                structure_component.layout(),
-                                structure_component.legend_layout(),
-                            ],
-                                     className='col-md-4',
-                                     style={'width': '100%'}),
-                            html.Div(dcc.Loading([html.Div(id='resultdiv')]), className='col-md-8'),
+                            html.Div(
+                                [
+                                    structure_component.layout(),
+                                    structure_component.legend_layout(),
+                                ],
+                                className='col-md-4',
+                                style={'width': '100%'},
+                            ),
+                            html.Div(
+                                dcc.Loading([html.Div(id='resultdiv')]),
+                                className='col-md-8',
+                            ),
                         ],
                         className='row',
                     ),
@@ -144,8 +154,8 @@ layout = html.Div(  # pylint:disable=invalid-name
                 ],),
                 html.Hr(),
                 html.Footer(
-                    '© Laboratory of Molecular Simulation (LSMO), École polytechnique fédérale de Lausanne (EPFL). Web app version {}.'
-                    .format(__version__)),
+                    '© Laboratory of Molecular Simulation (LSMO), École polytechnique fédérale de Lausanne (EPFL). Web app version {}, model {}.'
+                    .format(__version__, MODEL_MEDIAN)),
             ],
             className='container',
         ),

@@ -8,7 +8,7 @@ setup(
     version='v0.1-alpha',
     packages=['colorml'],
     url='',
-    license='MIT',
+    license='GPL-3.0',
     install_requires=[],
     extras_require={
         'testing': ['pytest', 'pytest-cov<2.11'],
