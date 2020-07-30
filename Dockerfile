@@ -23,7 +23,7 @@ RUN conda install --yes --freeze-installed -c openbabel openbabel==2.4.1  && con
 
 COPY ./mofcolorizer  ./mofcolorizer
 RUN  curl -L -o models.tgz https://www.dropbox.com/s/ozwbu861oza8x4o/models.tgz\?dl\=0
-RUN tar -xvf models.tgz && cp *.joblib ./mofcolorizer && rm *.tgz
+RUN tar -xvf models.tgz && cp models/*.joblib ./mofcolorizer && rm *.tgz
 COPY run_app.py .
 COPY logging.conf .
 COPY gunicorn_conf.py .
