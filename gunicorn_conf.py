@@ -5,5 +5,5 @@
 #https://pythonspeed.com/articles/gunicorn-in-docker/
 worker_tmp_dir = '/dev/shm'
 workers = 2
-threads = 4
+threads = 2
 worker_class = 'gthread'
