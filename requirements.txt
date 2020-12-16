@@ -2,7 +2,7 @@ dash==1.17.0
 dash-core-components==1.13.0
 dash-daq==0.5.0
 dash-html-components==1.1.1
-dash-mp-components==0.1.9
+dash-mp-components==0.1.15
 dash-renderer==1.8.3
 dash-table==4.11.0
 git+https://github.com/kjappelbaum/molSimplify.git@racs4mof_refact#egg=molsimplify
