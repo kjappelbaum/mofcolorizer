@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: double-quote-string-fixer
@@ -42,7 +42,7 @@ repos:
         types: [text]
 
   - repo: https://github.com/python-modernize/python-modernize.git
-    sha: a234ce4e185cf77a55632888f1811d83b4ad9ef2
+    rev: v0.9rc0
     hooks:
       - id: python-modernize
         exclude: ^docs/|versioneer.py
